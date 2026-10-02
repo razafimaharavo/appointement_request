@@ -1,24 +1,18 @@
 import { Client } from "basic-ftp";
+import { parseFtpDirectory } from "./ftp-path.mjs";
 import { Readable } from "node:stream";
 import { access } from "node:fs/promises";
 const required = [
   "FTP_SERVER",
   "FTP_USERNAME",
   "FTP_PASSWORD",
-  "FTP_SERVER_DIR",
   "GITHUB_SHA",
   "GITHUB_RUN_ID",
   "GITHUB_RUN_ATTEMPT",
 ];
 for (const key of required)
   if (!process.env[key]?.trim()) throw new Error(`Missing ${key}`);
-const root = process.env.FTP_SERVER_DIR;
-if (
-  !root.startsWith("/") ||
-  /[\r\n\\]/.test(root) ||
-  root.split("/").includes("..")
-)
-  throw new Error("FTP_SERVER_DIR must be an absolute FTP path without ..");
+const root = parseFtpDirectory(process.env.FTP_SERVER_DIR);
 const release = `${process.env.GITHUB_SHA}-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}`;
 if (!/^[a-f0-9]{40}-\d+-\d+$/.test(release))
   throw new Error("Invalid release identifier");
