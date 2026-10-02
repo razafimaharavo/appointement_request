@@ -3,7 +3,10 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile, rename, rm } from "node:fs/promises";
 import path from "node:path";
 import { formatDate, type DateResponse } from "./invitation";
-const directory = path.join(process.cwd(), ".data", "responses");
+const directory = path.join(
+  process.env.INVITATION_DATA_DIR || path.join(process.cwd(), ".data"),
+  "responses",
+);
 export function escapeHtml(value: string) {
   return value.replace(
     /[&<>"']/g,

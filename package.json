@@ -10,7 +10,10 @@
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test tests/*.test.ts",
     "test:e2e": "playwright test",
-    "format": "prettier --write app components lib tests *.ts *.mjs *.json README.md"
+    "format": "prettier --write app components lib tests *.ts *.mjs *.json README.md",
+    "package:deploy": "node scripts/package-deployment.mjs",
+    "deploy:o2switch": "node scripts/deploy-o2switch.mjs",
+    "test:deployment": "node scripts/test-deployment.mjs"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.2.0",
@@ -29,6 +32,7 @@
     "@types/node": "^24.0.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "basic-ftp": "^6.2.1",
     "eslint": "^9.0.0",
     "eslint-config-next": "^16.0.0",
     "prettier": "^3.9.9",

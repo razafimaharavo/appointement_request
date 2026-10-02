@@ -48,3 +48,7 @@ Un verrou atomique évite deux envois concurrents, le registre persistant évite
 Pour Vercel, plusieurs instances ou un disque éphémère, remplacer le registre local par une base durable partagée avec contrainte unique sur l’identifiant. Ne pas utiliser le registre local sur un tel hébergement. Les clés sont propres à chaque parcours : vider le stockage ou ouvrir une nouvelle session crée une nouvelle invitation.
 
 Les dates sont saisies dans le fuseau local du navigateur ; le décalage de la date choisie est envoyé pour la validation serveur. Le destinataire est fixé uniquement par l’environnement. La route ne permet pas de choisir une adresse de destination. Un site public à fort trafic devrait ajouter une limitation de débit au niveau de l’hébergement.
+
+## Déploiement o2switch
+
+Le CI/CD FTPS est prêt pour la branche `master`. Suivre [le guide cPanel et GitHub](docs/DEPLOYMENT-O2SWITCH.md) pour les paramètres, le premier déploiement et le retour arrière. Les identifiants FTP restent dans GitHub, les secrets email dans cPanel.
