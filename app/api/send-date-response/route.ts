@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { appointmentTimestamp, responseSchema } from "@/lib/invitation";
 import { MailError, sendDateResponse } from "@/lib/mail";
+import { isSameOrigin } from "@/lib/request-origin";
 export const runtime = "nodejs";
 export async function POST(request: NextRequest) {
   const origin = request.headers.get("origin");
-  if (origin && origin !== request.nextUrl.origin)
+  if (!isSameOrigin(origin, request.headers.get("host"), request.nextUrl.href))
     return NextResponse.json(
       { error: "Origine non autorisée." },
       { status: 403 },
