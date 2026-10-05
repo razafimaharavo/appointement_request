@@ -95,3 +95,9 @@ Pour revenir à une version précédente : arrêter l’application dans cPanel,
 - [o2switch : Setup Node.js App](https://faq.o2switch.fr/cpanel/logiciels/hebergement-nodejs-multi-version/)
 - [Next.js : sortie standalone](https://nextjs.org/docs/app/api-reference/config/next-config-js/output)
 - [Passenger : redémarrage par restart.txt](https://www.phusionpassenger.com/docs/advanced_guides/troubleshooting/standalone/restart_app.html)
+
+### Le journal affiche un ancien dossier malgré une variable corrigée
+
+Vérifier que le workflow et le script modifiés sont poussés sur `master`. Lancer une nouvelle exécution avec **Actions → CI et déploiement o2switch → Run workflow → master**. Le champ optionnel **Chemin FTP pour cette exécution** permet de saisir explicitement `/` si le compte FTP est déjà limité au dossier de l’application. Vide, il reprend `FTP_SERVER_DIR`.
+
+Les logs affichent la version exécutée, la valeur reçue, le chemin utilisé et le dossier FTP à la connexion. Aucun identifiant ni mot de passe n’est affiché. Si ces lignes sont absentes, l’exécution ne contient pas ce diagnostic. Ne pas changer de dossier au hasard : vérifier la racine du compte FTP dans cPanel.

@@ -4,6 +4,11 @@ on:
   push:
     branches: [master]
   workflow_dispatch:
+    inputs:
+      ftp_server_dir:
+        description: "Chemin FTP pour cette exécution (vide = variable FTP_SERVER_DIR)"
+        required: false
+        type: string
 permissions:
   contents: read
 concurrency:
@@ -57,4 +62,4 @@ jobs:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-          FTP_SERVER_DIR: ${{ vars.FTP_SERVER_DIR }}
+          FTP_SERVER_DIR: ${{ inputs.ftp_server_dir || vars.FTP_SERVER_DIR }}

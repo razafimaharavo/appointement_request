@@ -16,6 +16,11 @@ const root = parseFtpDirectory(process.env.FTP_SERVER_DIR);
 const release = `${process.env.GITHUB_SHA}-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}`;
 if (!/^[a-f0-9]{40}-\d+-\d+$/.test(release))
   throw new Error("Invalid release identifier");
+console.log(`Version exécutée : ${release}`);
+console.log(
+  `FTP_SERVER_DIR reçu : ${JSON.stringify(process.env.FTP_SERVER_DIR)}`,
+);
+console.log(`Chemin FTP utilisé : ${JSON.stringify(root)}`);
 await access(".deploy/release/server.js");
 const client = new Client(120000);
 const uploadText = (text, target) =>
@@ -28,9 +33,14 @@ try {
     port: 21,
     secure: true,
   });
+  console.log(
+    `Dossier FTP à la connexion : ${JSON.stringify(await client.pwd())}`,
+  );
+  console.log(`Sélection du dossier cible : ${JSON.stringify(root)}`);
   // Require an existing directory to avoid publishing into a mistyped path.
   await client.cd(root);
   const base = await client.pwd();
+  console.log(`Dossier cible confirmé : ${JSON.stringify(base)}`);
   await client.ensureDir(`releases/${release}`);
   await client.uploadFromDir(".deploy/release");
   await client.cd(base);
