@@ -238,6 +238,21 @@ button:hover:not(:disabled) {
   color: #b28b95;
   display: block;
 }
+.eyebrow.personalized-intro {
+  font-size: 12px;
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+}
+.recipient-name {
+  color: #d34f7a;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(26px, 5vw, 32px);
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
 h1 {
   font-family: "Cormorant Garamond", Georgia, serif;
   font-weight: 400;

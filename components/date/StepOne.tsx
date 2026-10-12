@@ -12,10 +12,15 @@ export default function StepOne({
 }) {
   return (
     <div className="step step-one">
-      <span className="eyebrow">
-        {firstName
-          ? `J’ai une petite question pour toi, ${firstName}… 💕`
-          : "UNE PETITE QUESTION, JUSTE POUR TOI"}
+      <span className={firstName ? "eyebrow personalized-intro" : "eyebrow"}>
+        {firstName ? (
+          <>
+            J’ai une petite question pour toi,{" "}
+            <span className="recipient-name">{firstName}</span>… 💕
+          </>
+        ) : (
+          "UNE PETITE QUESTION, JUSTE POUR TOI"
+        )}
       </span>
       <div className="love-letter" aria-hidden="true">
         <div className="letter-note">

@@ -33,9 +33,14 @@ export default function StepFive({
           Alors c’est <em>décidé…</em> 💕
         </h1>,
         <p key="yes">
-          {firstName
-            ? `${firstName}, je suis vraiment content que tu aies dit oui. ❤️`
-            : "Je suis vraiment content que tu aies dit oui."}
+          {firstName ? (
+            <>
+              <span className="recipient-name">{firstName}</span>, je suis
+              vraiment content que tu aies dit oui. ❤️
+            </>
+          ) : (
+            "Je suis vraiment content que tu aies dit oui."
+          )}
         </p>,
         <div className="appointment" key="date">
           <span>Je passerai te chercher 🚗💗</span>

@@ -16,7 +16,7 @@ export default function StepTwo({
       <div className="reaction">
         {failed ? (
           <span role="img" aria-label="Surpris et heureux">
-            😳💗
+            🥹💗
           </span>
         ) : (
           <Image
@@ -32,7 +32,7 @@ export default function StepTwo({
       <h1>
         Attends… tu as
         <br />
-        vraiment dit <em>OUI ?</em> 😳💕
+        vraiment dit <em>OUI ?</em> 🥹💕
       </h1>
       <p>
         Bon, je vais essayer de rester calme.
