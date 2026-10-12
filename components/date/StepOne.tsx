@@ -3,14 +3,20 @@ export default function StepOne({
   onYes,
   onNo,
   busy,
+  firstName,
 }: {
   onYes: () => void;
   onNo: () => void;
   busy: boolean;
+  firstName?: string;
 }) {
   return (
     <div className="step step-one">
-      <span className="eyebrow">UNE PETITE QUESTION, JUSTE POUR TOI</span>
+      <span className="eyebrow">
+        {firstName
+          ? `J’ai une petite question pour toi, ${firstName}… 💕`
+          : "UNE PETITE QUESTION, JUSTE POUR TOI"}
+      </span>
       <div className="love-letter" aria-hidden="true">
         <div className="letter-note">
           toi + moi<span>une jolie histoire ?</span>

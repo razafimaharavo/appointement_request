@@ -5,7 +5,9 @@ export default function StepFive({
   value,
   status,
   retry,
+  firstName,
 }: {
+  firstName?: string;
   value: DateInvitation;
   status: "sending" | "sent" | "error";
   retry: () => void;
@@ -30,7 +32,11 @@ export default function StepFive({
         <h1 key="title">
           Alors c’est <em>décidé…</em> 💕
         </h1>,
-        <p key="yes">Je suis vraiment content que tu aies dit oui.</p>,
+        <p key="yes">
+          {firstName
+            ? `${firstName}, je suis vraiment content que tu aies dit oui. ❤️`
+            : "Je suis vraiment content que tu aies dit oui."}
+        </p>,
         <div className="appointment" key="date">
           <span>Je passerai te chercher 🚗💗</span>
           <strong>{formatDate(value.date)}</strong>

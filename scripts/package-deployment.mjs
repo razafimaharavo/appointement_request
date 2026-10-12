@@ -20,6 +20,9 @@ await cp("public", path.join(destination, "release/public"), {
   recursive: true,
   filter: allowed,
 });
+await cp("migrations", path.join(destination, "release/migrations"), {
+  recursive: true,
+});
 await cp("deployment/app.cjs", path.join(destination, "app.cjs"));
 async function verify(directory) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {

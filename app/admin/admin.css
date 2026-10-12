@@ -1,0 +1,184 @@
+.admin-world {
+  padding: 40px 20px;
+  overflow: visible;
+}
+.admin-shell {
+  max-width: 960px;
+  margin: auto;
+  position: relative;
+}
+.admin-brand {
+  font:
+    500 30px "Cormorant Garamond",
+    serif;
+  color: #a76178;
+  margin-bottom: 45px;
+}
+.admin-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+.admin-heading h1 {
+  margin: 14px 0;
+}
+.admin-heading p {
+  margin: 0;
+}
+.admin-card {
+  background: #fffdf9;
+  border: 1px solid #ecdfd6;
+  border-radius: 12px;
+  padding: 26px;
+  box-shadow: 0 9px 28px #ac758012;
+}
+.admin-login {
+  max-width: 490px;
+  margin: 70px auto;
+}
+.admin-login h1 {
+  font-size: 44px;
+}
+.admin-login .primary {
+  margin-top: 24px;
+}
+.admin-create {
+  display: flex;
+  align-items: end;
+  gap: 22px;
+}
+.admin-create label {
+  flex: 1;
+}
+.admin-new-link {
+  display: flex;
+  align-items: end;
+  gap: 16px;
+  border-top: 1px solid #eee4dc;
+  padding-top: 20px;
+  margin-top: 22px;
+}
+.admin-new-link label {
+  flex: 1;
+  min-width: 0;
+}
+.admin-new-link input {
+  font-size: 12px;
+}
+.admin-feedback {
+  min-height: 32px;
+  padding: 12px 0;
+  font-size: 12px;
+  color: #a76178;
+}
+.admin-list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin: 16px 0;
+}
+.admin-shell h2 {
+  font:
+    500 27px "Cormorant Garamond",
+    serif;
+  margin: 0;
+}
+.admin-list-heading h2 {
+  font-size: 25px;
+}
+.admin-list-heading .text-button {
+  margin: 0;
+}
+.admin-invitations {
+  display: grid;
+  gap: 18px;
+}
+.admin-row-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.admin-row-title h2 {
+  margin-right: auto;
+  overflow-wrap: anywhere;
+}
+.admin-badge {
+  border-radius: 20px;
+  padding: 6px 10px;
+  font-size: 10px;
+  background: #f7edf0;
+  color: #936477;
+}
+.admin-badge.completed {
+  background: #eaf3eb;
+  color: #3b7548;
+}
+.admin-badge.declined,
+.admin-badge.revoked {
+  background: #f1eceb;
+  color: #82696e;
+}
+.admin-answer {
+  background: #fff0f3;
+  border-radius: 7px;
+  padding: 14px;
+  margin-bottom: 15px;
+  line-height: 1.8;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.admin-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.admin-actions .text-button {
+  margin: 0;
+}
+.admin-email {
+  margin: 8px 0;
+  font-size: 11px;
+}
+.admin-empty {
+  color: #a07d87;
+  text-align: center;
+}
+.admin-shell .form-error {
+  margin-top: 12px;
+}
+@media (max-width: 600px) {
+  .admin-world {
+    padding: 25px 16px;
+  }
+  .admin-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+  .admin-brand {
+    margin-bottom: 25px;
+  }
+  .admin-create,
+  .admin-new-link {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+  .admin-card {
+    padding: 20px;
+  }
+  .admin-heading h1 {
+    font-size: 43px;
+  }
+  .admin-login {
+    margin: 30px auto;
+  }
+  .admin-list-heading h2 {
+    font-size: 22px;
+  }
+}

@@ -52,3 +52,7 @@ Les dates sont saisies dans le fuseau local du navigateur ; le décalage de la d
 ## Déploiement o2switch
 
 Le CI/CD FTPS est prêt pour la branche `master`. Suivre [le guide cPanel et GitHub](docs/DEPLOYMENT-O2SWITCH.md) pour les paramètres, le premier déploiement et le retour arrière. Les identifiants FTP restent dans GitHub, les secrets email dans cPanel.
+
+## Espace privé et invitations personnalisées
+
+Accès : `/admin/invitations`. Générer le mot de passe haché avec `npm run admin:password`, puis configurer `ADMIN_PASSWORD_HASH` dans cPanel et redémarrer. La base SQLite et ses migrations sont gérées automatiquement dans le stockage persistant existant. Voir [la configuration, les statuts et la sauvegarde](docs/ADMIN-INVITATIONS.md).

@@ -92,3 +92,34 @@ export async function sendDateResponse(value: DateResponse) {
     await rm(lock, { recursive: true, force: true });
   }
 }
+
+/** Shared Resend transport for persistent, personalized notifications. */
+export async function sendPersonalizedMail(
+  payload: import("./managed-invitations").NotificationPayload,
+  id: string,
+) {
+  if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM)
+    throw new MailError("Service email non configuré.", 503);
+  const name = escapeHtml(payload.firstName);
+  const yes = payload.kind === "completed";
+  const answer = payload.response;
+  const details = answer
+    ? `<tr><th>Date</th><td>${escapeHtml(formatDate(answer.date))}</td></tr><tr><th>Heure</th><td>${escapeHtml(answer.time.replace(":", "h"))}</td></tr><tr><th>Plat</th><td>${escapeHtml(answer.food === "Autre" ? answer.otherFood! : answer.food)}</td></tr>`
+    : "";
+  const closing = yes
+    ? "Il ne te reste plus qu’à préparer le rendez-vous. ✨"
+    : "Son choix est enregistré. Merci de respecter sa réponse. 🌷";
+  const result = await new Resend(process.env.RESEND_API_KEY).emails.send(
+    {
+      from: process.env.EMAIL_FROM,
+      to: "razafimaharavomarion@gmail.com",
+      subject: yes
+        ? `💕 ${payload.firstName} a accepté ton invitation !`
+        : `🌷 ${payload.firstName} a décliné ton invitation`,
+      html: `<!doctype html><html lang="fr"><body style="margin:0;padding:32px 16px;background:#fff0f3;color:#442a32;font-family:Arial,sans-serif"><div style="max-width:480px;margin:auto;padding:32px;border:1px solid #ffd6e0;border-radius:16px;background:#fffdf9"><h1 style="font-family:Georgia,serif;font-weight:normal">${yes ? "Un joli rendez-vous se prépare 💕" : "Une réponse à ton invitation 🌷"}</h1><table style="width:100%;text-align:left;border-spacing:0 16px"><tr><th>Prénom</th><td>${name}</td></tr><tr><th>Réponse</th><td>${yes ? "Oui 💗" : "Non"}</td></tr>${details}</table><p style="color:#b36079">${closing}</p></div></body></html>`,
+      text: `Prénom : ${payload.firstName}\nRéponse : ${yes ? "Oui" : "Non"}${answer ? `\nDate : ${formatDate(answer.date)}\nHeure : ${answer.time}\nPlat : ${answer.food === "Autre" ? answer.otherFood : answer.food}` : ""}\n\n${closing}`,
+    },
+    { idempotencyKey: `personal-invitation/${id}` },
+  );
+  if (result.error) throw new MailError("Envoi indisponible.", 502);
+}

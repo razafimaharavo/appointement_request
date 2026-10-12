@@ -2,7 +2,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Heart, ArrowLeft } from "lucide-react";
-import { responseSchema, type DateInvitation } from "@/lib/invitation";
+import {
+  responseSchema,
+  type DateResponse,
+  type DateInvitation,
+} from "@/lib/invitation";
 import PageFlip from "./PageFlip";
 import FloatingHearts from "./FloatingHearts";
 import MusicController from "./MusicController";
@@ -27,7 +31,18 @@ const initial: Saved = {
   sent: false,
   timezoneOffset: 0,
 };
-export default function RomanticDate() {
+type Recipient = {
+  token: string;
+  id: string;
+  firstName: string;
+  status: "pending" | "accepted" | "declined" | "completed";
+  response: DateResponse | null;
+  emailSent: boolean;
+};
+export default function RomanticDate({ recipient }: { recipient?: Recipient }) {
+  const storageKey = recipient ? `${STORAGE}:${recipient.token}` : STORAGE;
+  const [actionError, setActionError] = useState("");
+  const [declineEmail, setDeclineEmail] = useState("");
   const [data, setData] = useState<Saved>(initial);
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -42,7 +57,7 @@ export default function RomanticDate() {
   useEffect(() => {
     let saved: Saved = { ...initial, id: crypto.randomUUID() };
     try {
-      const raw = sessionStorage.getItem(STORAGE);
+      const raw = sessionStorage.getItem(storageKey);
       if (raw) {
         const v = JSON.parse(raw);
         const inv = v.invitation;
@@ -71,33 +86,70 @@ export default function RomanticDate() {
       }
     } catch {}
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Synchronize with browser storage after hydration.
-    setData(saved);
+    setData(
+      recipient
+        ? {
+            ...saved,
+            id: recipient.id,
+            sent: recipient.emailSent,
+            ...(recipient.status === "completed" && recipient.response
+              ? {
+                  step: 4,
+                  invitation: recipient.response,
+                  timezoneOffset: recipient.response.timezoneOffset,
+                }
+              : {}),
+            ...(recipient.status === "accepted" && saved.step === 0
+              ? { step: 1, invitation: { ...saved.invitation, accepted: true } }
+              : {}),
+          }
+        : saved,
+    );
+    setDeclined(recipient?.status === "declined");
     setReady(true);
     return () => {
       if (timer.current) clearTimeout(timer.current);
     };
-  }, []);
+  }, [recipient, storageKey]);
   useEffect(() => {
     if (ready)
       try {
-        sessionStorage.setItem(STORAGE, JSON.stringify(data));
+        sessionStorage.setItem(storageKey, JSON.stringify(data));
       } catch {}
-  }, [data, ready]);
+  }, [data, ready, storageKey]);
   useEffect(() => {
     if (!ready || data.step !== 4 || request.current) return;
     if (data.sent) return;
     request.current = true;
-    fetch("/api/send-date-response", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...data.invitation,
-        id: data.id,
-        timezoneOffset: data.timezoneOffset,
-      }),
-    })
+    fetch(
+      recipient
+        ? `/api/invitations/${recipient.token}`
+        : "/api/send-date-response",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(
+          recipient
+            ? {
+                action: "complete",
+                response: {
+                  ...data.invitation,
+                  id: data.id,
+                  timezoneOffset: data.timezoneOffset,
+                },
+              }
+            : {
+                ...data.invitation,
+                id: data.id,
+                timezoneOffset: data.timezoneOffset,
+              },
+        ),
+      },
+    )
       .then(async (res) => {
-        if (!res.ok) throw new Error("send");
+        const result = await res.json();
+        if (!res.ok || (recipient && result.email !== "sent"))
+          throw new Error("send");
         setData((v) => ({ ...v, sent: true }));
         setStatus("sent");
       })
@@ -113,6 +165,7 @@ export default function RomanticDate() {
     data.invitation,
     data.timezoneOffset,
     retryCount,
+    recipient,
   ]);
   const turning = useCallback((value: boolean) => {
     setBusy(value);
@@ -140,11 +193,51 @@ export default function RomanticDate() {
       data.step === 0 ? 650 : 150,
     );
   }
+  async function answer(accepted: boolean) {
+    if (!recipient) {
+      if (accepted) advance({ accepted: true });
+      else setDeclined(true);
+      return;
+    }
+    if (locked.current) return;
+    locked.current = true;
+    setBusy(true);
+    setActionError("");
+    try {
+      const res = await fetch(`/api/invitations/${recipient.token}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: accepted ? "accept" : "decline" }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Réponse non enregistrée.");
+      locked.current = false;
+      setBusy(false);
+      if (accepted) advance({ accepted: true });
+      else {
+        setDeclined(true);
+        setDeclineEmail(
+          result.email === "sent"
+            ? "Ta réponse a bien été transmise."
+            : "Ta réponse est enregistrée. La notification reste en attente d’envoi.",
+        );
+      }
+    } catch (error) {
+      locked.current = false;
+      setBusy(false);
+      setActionError(
+        error instanceof Error
+          ? error.message
+          : "Connexion impossible. Réessaie.",
+      );
+    }
+  }
   const steps = [
     <StepOne
       key="one"
-      onYes={() => advance({ accepted: true })}
-      onNo={() => setDeclined(true)}
+      firstName={recipient?.firstName}
+      onYes={() => void answer(true)}
+      onNo={() => void answer(false)}
       busy={busy}
     />,
     <StepTwo key="two" next={() => advance()} busy={busy} />,
@@ -163,6 +256,7 @@ export default function RomanticDate() {
     data.step === 4 ? (
       <StepFive
         key="five"
+        firstName={recipient?.firstName}
         value={data.invitation}
         status={data.sent ? "sent" : status}
         retry={() => {
@@ -176,7 +270,10 @@ export default function RomanticDate() {
     <main className="romantic-world">
       <FloatingHearts celebrate={celebrate} />
       <header className="site-header">
-        <Link href="/" className="brand">
+        <Link
+          href={recipient ? `/invitation/${recipient.token}` : "/"}
+          className="brand"
+        >
           <Heart size={22} strokeWidth={1.3} />
           <span>
             juste nous deux<span className="brand-dot">.</span>
@@ -212,6 +309,7 @@ export default function RomanticDate() {
                     <br />
                     Prends soin de toi. 🌷
                   </p>
+                  {declineEmail && <p role="status">{declineEmail}</p>}
                   <button
                     className="secondary"
                     onClick={() => setDeclined(false)}
@@ -221,6 +319,11 @@ export default function RomanticDate() {
                 </div>
               ) : (
                 steps[data.step]
+              )}
+              {actionError && (
+                <p className="form-error" role="alert">
+                  {actionError}
+                </p>
               )}
               <div className="page-bottom">
                 <span>avec un peu de courage & beaucoup de cœur</span>
