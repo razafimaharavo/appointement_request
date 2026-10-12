@@ -101,3 +101,11 @@ Pour revenir à une version précédente : arrêter l’application dans cPanel,
 Vérifier que le workflow et le script modifiés sont poussés sur `master`. Lancer une nouvelle exécution avec **Actions → CI et déploiement o2switch → Run workflow → master**. Le champ optionnel **Chemin FTP pour cette exécution** permet de saisir explicitement `/` si le compte FTP est déjà limité au dossier de l’application. Vide, il reprend `FTP_SERVER_DIR`.
 
 Les logs affichent la version exécutée, la valeur reçue, le chemin utilisé et le dossier FTP à la connexion. Aucun identifiant ni mot de passe n’est affiché. Si ces lignes sont absentes, l’exécution ne contient pas ce diagnostic. Ne pas changer de dossier au hasard : vérifier la racine du compte FTP dans cPanel.
+
+### Coupure FTPS pendant le transfert (FIN, timeout)
+
+Une connexion validée peut être fermée par le serveur ou le réseau pendant un transfert. Le script transfère chaque fichier séparément et réessaie une opération interrompue jusqu’à trois fois, après 2, 4 puis 8 secondes. À chaque reconnexion, il resélectionne explicitement le dossier FTP configuré. Le fichier interrompu est réécrit depuis le début ; les fichiers déjà confirmés dans la même exécution restent acquis. Une nouvelle exécution GitHub crée une nouvelle version et refait son transfert.
+
+Les logs indiquent le nombre de fichiers, leur progression et les phases lanceur / activation / redémarrage. Le pointeur actif n’est modifié qu’après tous les fichiers. La répétition de l’activation après une confirmation réseau perdue réécrit le même pointeur. Si le dernier échec survient après cette activation, vérifier la version active et redémarrer dans cPanel.
+
+Les erreurs de certificat, d’authentification, de dossier et de quota ne sont pas relancées automatiquement. Le script ne désactive jamais TLS, ne supprime jamais `.data` et ne nettoie pas les anciennes versions. Si les coupures persistent, relever la phase et le fichier concernés puis vérifier le quota disque et le nombre de fichiers autorisés dans cPanel. Transmettre le journal et l’heure au support o2switch pour identifier un éventuel délai de session, pare-feu ou plafond FTP. Une coupure FIN seule ne permet pas d’en déduire la cause.
