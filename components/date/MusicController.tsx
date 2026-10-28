@@ -10,14 +10,31 @@ export default function MusicController() {
     const element = audio.current;
     if (!element) return;
     element.volume = 0.25;
-    void element.play().catch(() => {});
+    const startAtIntro = () => {
+      // The little instrumental introduction starts at 0:04, not at the
+      // silent beginning of the file. Metadata can already be available on
+      // a warm browser cache, hence the readyState check as well as the event.
+      if (element.readyState >= HTMLMediaElement.HAVE_METADATA)
+        element.currentTime = Math.min(2, Math.max(0, element.duration - 0.1));
+    };
+    const play = () => {
+      startAtIntro();
+      void element.play().catch(() => {
+        // Browsers may only allow audible autoplay after a user gesture.
+        // The first tap/click below retries without showing an error.
+      });
+    };
+    element.addEventListener("loadedmetadata", startAtIntro, { once: true });
+    play();
     const start = () => {
-      if (!manuallyPaused.current && element.paused)
-        void element.play().catch(() => {});
+      if (!manuallyPaused.current && element.paused) play();
     };
     window.addEventListener("pointerdown", start, { once: true });
+    window.addEventListener("keydown", start, { once: true });
     return () => {
+      element.removeEventListener("loadedmetadata", startAtIntro);
       window.removeEventListener("pointerdown", start);
+      window.removeEventListener("keydown", start);
       element.pause();
     };
   }, []);
@@ -38,7 +55,8 @@ export default function MusicController() {
         ref={audio}
         src="/audio/romantic.mp3"
         loop
-        preload="none"
+        autoPlay
+        preload="auto"
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
         onError={() => setMissing(true)}

@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Mail } from "lucide-react";
 import type { InvitationRow } from "@/lib/managed-invitations";
 import type { DateResponse } from "@/lib/invitation";
 import { formatDate } from "@/lib/invitation";
@@ -41,6 +42,7 @@ export default function InvitationManager() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [newLink, setNewLink] = useState("");
+  const [newInvitationName, setNewInvitationName] = useState("");
   const refresh = useCallback(async () => {
     try {
       const data = await api("/api/admin/invitations");
@@ -131,6 +133,7 @@ export default function InvitationManager() {
                 firstName: name,
               });
               setNewLink(link(data.invitation.token));
+              setNewInvitationName(data.invitation.first_name);
               setName("");
               setMessage("Une invitation toute particulière est prête 💌");
               await refresh();
@@ -158,15 +161,18 @@ export default function InvitationManager() {
         </form>
         {newLink && (
           <div className="admin-new-link">
-            <label>
-              Le lien à lui envoyer
-              <input
-                aria-label="Lien de la nouvelle invitation"
-                readOnly
-                value={newLink}
-                onFocus={(e) => e.target.select()}
-              />
-            </label>
+            <div
+              className="admin-share-preview"
+              aria-label="Invitation prête à partager"
+            >
+              <span className="admin-envelope" aria-hidden="true">
+                <Mail size={22} strokeWidth={1.5} />
+              </span>
+              <span>
+                <strong>Une invitation pour {newInvitationName}</strong>
+                <small>Prête à être envoyée 💌</small>
+              </span>
+            </div>
             <button className="secondary" onClick={() => copy(newLink)}>
               Copier le lien
             </button>
@@ -258,7 +264,8 @@ export default function InvitationManager() {
                     } else await copy(url);
                   }}
                 >
-                  Partager
+                  <Mail size={15} aria-hidden="true" />
+                  Partager avec {row.first_name}
                 </button>
                 <button
                   className="text-button"

@@ -1,12 +1,37 @@
 import RomanticDate from "@/components/date/RomanticDate";
 import { getInvitation, notificationList } from "@/lib/managed-invitations";
+import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-export const metadata = {
-  title: "Une invitation pour toi · Juste nous deux",
-  robots: { index: false, follow: false },
-  referrer: "no-referrer" as const,
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ token: string }>;
+}): Promise<Metadata> {
+  const { token } = await params;
+  const invitation = getInvitation(token);
+  const firstName =
+    invitation && !invitation.revoked_at ? invitation.first_name : null;
+  const available = firstName !== null;
+  const title = available
+    ? `💌 Une invitation pour ${firstName}`
+    : "Une invitation privée · Juste nous deux";
+  return {
+    title,
+    description: available
+      ? `${firstName}, une petite enveloppe t’attend. 💕`
+      : "Une petite invitation privée.",
+    robots: { index: false, follow: false },
+    referrer: "no-referrer",
+    openGraph: available
+      ? {
+          title,
+          description: `${firstName}, une petite enveloppe t’attend. 💕`,
+          images: [`/invitation/${token}/opengraph-image`],
+        }
+      : undefined,
+  };
+}
 export default async function InvitationPage({
   params,
 }: {

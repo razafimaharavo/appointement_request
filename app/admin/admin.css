@@ -67,6 +67,40 @@
 .admin-new-link input {
   font-size: 12px;
 }
+.admin-share-preview {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  flex: 1;
+  min-width: 0;
+  color: #795560;
+}
+.admin-share-preview strong,
+.admin-share-preview small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.admin-share-preview strong {
+  font:
+    500 20px "Cormorant Garamond",
+    serif;
+  color: #a34f6d;
+}
+.admin-share-preview small {
+  margin-top: 3px;
+  font-size: 11px;
+}
+.admin-envelope {
+  display: grid;
+  place-items: center;
+  width: 45px;
+  height: 38px;
+  flex: 0 0 auto;
+  border: 1px solid #e8bcc9;
+  border-radius: 8px;
+  background: #fff0f4;
+  color: #c85d80;
+}
 .admin-feedback {
   min-height: 32px;
   padding: 12px 0;
@@ -137,6 +171,11 @@
   gap: 10px;
   flex-wrap: wrap;
   align-items: center;
+}
+.admin-actions .secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
 }
 .admin-actions .text-button {
   margin: 0;
