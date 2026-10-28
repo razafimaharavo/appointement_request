@@ -2,8 +2,9 @@ import { Client } from "basic-ftp";
 import { parseFtpDirectory } from "./ftp-path.mjs";
 import { withFtpRetry } from "./ftp-retry.mjs";
 import { Readable } from "node:stream";
-import { access, readdir, stat } from "node:fs/promises";
+import { access, readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
+import { rootCertificates } from "node:tls";
 const required = [
   "FTP_SERVER",
   "FTP_USERNAME",
@@ -15,6 +16,14 @@ const required = [
 for (const key of required)
   if (!process.env[key]?.trim()) throw new Error(`Missing ${key}`);
 const root = parseFtpDirectory(process.env.FTP_SERVER_DIR);
+const ftpHost = process.env.FTP_SERVER.trim();
+// o2switch currently omits its Let’s Encrypt Gen-Y chain from the FTPS
+// handshake. Keep Node's default trust store and add only the missing public
+// chain, so the host name and certificate signature remain verified.
+const additionalCertificateAuthorities = await readFile(
+  new URL("../certificates/letsencrypt-gen-y-chain.pem", import.meta.url),
+  "utf8",
+);
 const release = `${process.env.GITHUB_SHA}-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}`;
 if (!/^[a-f0-9]{40}-\d+-\d+$/.test(release))
   throw new Error("Invalid release identifier");
@@ -48,11 +57,15 @@ async function reconnect() {
   if (!client.closed && base) return;
   directories.clear();
   await client.access({
-    host: process.env.FTP_SERVER.trim(),
+    host: ftpHost,
     user: process.env.FTP_USERNAME,
     password: process.env.FTP_PASSWORD,
     port: 21,
     secure: true,
+    secureOptions: {
+      ca: [...rootCertificates, additionalCertificateAuthorities],
+      servername: ftpHost,
+    },
   });
   // Always restore the configured root after reconnect; never fall back to another folder.
   await client.cd(root);
