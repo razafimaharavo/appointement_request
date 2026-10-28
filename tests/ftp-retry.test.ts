@@ -47,7 +47,7 @@ test("permanent disconnect stops after four attempts", async () => {
   );
   assert.equal(calls, 4);
 });
-test("certificate, credentials, folder and quota errors fail without retry", async () => {
+test("invalid certificates, credentials, folder and quota errors fail without retry", async () => {
   for (const code of ["ERR_TLS_CERT_ALTNAME_INVALID", 530, 550, 552]) {
     const error = Object.assign(new Error("permanent"), { code });
     assert.equal(isTransientFtpError(error), false);
@@ -63,6 +63,21 @@ test("certificate, credentials, folder and quota errors fail without retry", asy
     );
     assert.equal(attempts, 1);
   }
+});
+test("an incomplete FTPS certificate chain is retried without disabling verification", async () => {
+  const error = Object.assign(new Error("incomplete chain"), {
+    code: "UNABLE_TO_VERIFY_LEAF_SIGNATURE",
+  });
+  assert.equal(isTransientFtpError(error), true);
+  let attempts = 0;
+  await withFtpRetry(
+    async () => {
+      attempts++;
+      if (attempts === 1) throw error;
+    },
+    { reconnect: async () => {}, close: () => {}, wait: async () => {} },
+  );
+  assert.equal(attempts, 2);
 });
 test("reconnection failure is retried; activation is replayable after a lost acknowledgment", async () => {
   let connects = 0;
